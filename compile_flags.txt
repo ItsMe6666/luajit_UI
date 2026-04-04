@@ -1,0 +1,11 @@
+-xc++
+-std=c++17
+-Isrc
+-Ivendor/imgui
+-Ivendor/imgui/backends
+-Ivendor/luajit2/src
+-Ivendor/ImGuiColorTextEdit
+-D_WIN32_WINNT=0x0601
+-DNOMINMAX
+-DUNICODE
+-D_UNICODE
