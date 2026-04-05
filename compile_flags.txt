@@ -1,11 +1,13 @@
 -xc++
 -std=c++17
+--target=x86_64-pc-windows-msvc
 -Isrc
 -Ivendor/imgui
 -Ivendor/imgui/backends
--Ivendor/luajit2/src
 -Ivendor/ImGuiColorTextEdit
+-Ivendor/luajit2/src
 -D_WIN32_WINNT=0x0601
 -DNOMINMAX
 -DUNICODE
 -D_UNICODE
+-finput-charset=utf-8
