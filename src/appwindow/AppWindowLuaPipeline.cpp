@@ -1,4 +1,5 @@
 #include "appwindow/AppWindowInternal.h"
+#include "appwindow/I18n.h"
 #include "LuaBytecode.h"
 
 #include <commdlg.h>
@@ -70,6 +71,7 @@ void SavePersistNow()
 	s.fontGlobalScale = g_cachedFontScaleForSave;
 	s.sidebarWidth = g_sidebarWidth;
 	s.keepBytecodeDebug = g_keepBytecodeDebug;
+	s.uiLanguage = AppLanguageGetCurrent();
 	AppendPersistFileSlots(s);
 	AppSettings_Save(g_hwnd, s);
 }
@@ -85,7 +87,7 @@ bool PickOpenLuaPath(HWND owner)
 	ofn.hwndOwner = owner;
 	ofn.lpstrFile = g_openFileBuf.data();
 	ofn.nMaxFile = (DWORD)g_openFileBuf.size();
-	ofn.lpstrFilter = L"Lua 腳本 (*.lua)\0*.lua\0所有檔案 (*.*)\0*.*\0";
+	ofn.lpstrFilter = I18nOpenLuaFileFilterW();
 	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 	return GetOpenFileNameW(&ofn) == TRUE;
@@ -103,7 +105,7 @@ bool PickSaveLuaPath(HWND owner)
 	ofn.hwndOwner = owner;
 	ofn.lpstrFile = g_saveFileBuf.data();
 	ofn.nMaxFile = (DWORD)g_saveFileBuf.size();
-	ofn.lpstrFilter = L"Lua 腳本 (*.lua)\0*.lua\0";
+	ofn.lpstrFilter = I18nSaveLuaFileFilterW();
 	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 	ofn.lpstrDefExt = L"lua";
@@ -122,7 +124,7 @@ bool PickSaveLuacPath(HWND owner)
 	ofn.hwndOwner = owner;
 	ofn.lpstrFile = g_saveLuacBuf.data();
 	ofn.nMaxFile = (DWORD)g_saveLuacBuf.size();
-	ofn.lpstrFilter = L"Lua bytecode (*.luac)\0*.luac\0所有檔案 (*.*)\0*.*\0";
+	ofn.lpstrFilter = I18nSaveLuacFileFilterW();
 	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
 	ofn.lpstrDefExt = L"luac";
@@ -163,7 +165,7 @@ void TrySaveLuaSource(HWND owner, char* statusBuf, size_t statusSz)
 		g_docs[(size_t)g_activeDoc].text = text;
 		g_docs[(size_t)g_activeDoc].lastSavedTextUtf8 = text;
 	}
-	std::snprintf(statusBuf, statusSz, "已儲存 Lua");
+	std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::SavedLua));
 	g_requestSavePersist = true;
 }
 
@@ -185,7 +187,7 @@ void TryCompileBytecode(HWND owner, bool keepDebug, char* statusBuf, size_t stat
 	EnsureLuaEditorInited();
 	SyncEditorToActiveDoc();
 	if (!owner) {
-		std::snprintf(statusBuf, statusSz, "無法顯示儲存對話框");
+		std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::CannotShowSaveDlg));
 		return;
 	}
 	PrepareLuacSaveDialogInitialPath();
@@ -196,7 +198,7 @@ void TryCompileBytecode(HWND owner, bool keepDebug, char* statusBuf, size_t stat
 		wpath += L".luac";
 	std::string pathUtf8;
 	if (!WidePathToUtf8(wpath, pathUtf8)) {
-		std::snprintf(statusBuf, statusSz, "輸出路徑編碼失敗");
+		std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::OutputPathEncodeFail));
 		return;
 	}
 	std::string err;
@@ -210,7 +212,7 @@ void TryCompileBytecode(HWND owner, bool keepDebug, char* statusBuf, size_t stat
 		else
 			g_orphanLastLuacOutPathUtf8 = pathUtf8;
 		g_requestSavePersist = true;
-		std::snprintf(statusBuf, statusSz, "成功寫入: %s", pathUtf8.c_str());
+		std::snprintf(statusBuf, statusSz, Tr(I18nMsg::WrittenToFmt), pathUtf8.c_str());
 	} else
 		std::snprintf(statusBuf, statusSz, "%s", err.c_str());
 }
@@ -226,7 +228,7 @@ void TryCompileBytecodeLastPath(bool keepDebug, char* statusBuf, size_t statusSz
 	else
 		target = g_orphanLastLuacOutPathUtf8;
 	if (target.empty()) {
-		std::snprintf(statusBuf, statusSz, "此編輯分頁尚無紀錄的 .luac 路徑，請先用 F5 編譯並選擇儲存位置");
+		std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::NoLuacPathHint));
 		return;
 	}
 	std::string err;
@@ -235,7 +237,7 @@ void TryCompileBytecodeLastPath(bool keepDebug, char* statusBuf, size_t statusSz
 	opt.stripDebug = !keepDebug;
 	const bool ok = LuaBytecode::CompileUtf8ToFile(std::string_view(luaSrc), target, opt, err);
 	if (ok)
-		std::snprintf(statusBuf, statusSz, "成功寫入: %s", target.c_str());
+		std::snprintf(statusBuf, statusSz, Tr(I18nMsg::WrittenToFmt), target.c_str());
 	else
 		std::snprintf(statusBuf, statusSz, "%s", err.c_str());
 }

@@ -1,7 +1,8 @@
 #include "AppWindow.h"
 #include "appwindow/AppWindowInternal.h"
 #include "AppSettings.h"
-#include "GuiSkin.h"
+#include "appwindow/GuiSkin.h"
+#include "appwindow/I18n.h"
 
 #include "imgui.h"
 #include "imgui_impl_dx9.h"
@@ -19,6 +20,7 @@ bool Run()
 
 	AppPersistState bootPersist;
 	const bool bootOk = AppSettings_Load(bootPersist);
+	AppLanguageSetCurrent(bootOk ? bootPersist.uiLanguage : AppLanguage::En);
 
 	static constexpr wchar_t kClassName[] = L"LuaJIT_UI_ImGuiDx9";
 
@@ -87,7 +89,7 @@ bool Run()
 		g_hwnd = nullptr;
 		DestroyWindow(hwnd);
 		UnregisterClassW(kClassName, wc.hInstance);
-		MessageBoxW(nullptr, L"無法建立 Direct3D 9 裝置", L"luajit_UI", MB_OK | MB_ICONERROR);
+		MessageBoxW(nullptr, TrW(I18nSysW::D3dCreateFailed), L"luajit_UI", MB_OK | MB_ICONERROR);
 		return false;
 	}
 

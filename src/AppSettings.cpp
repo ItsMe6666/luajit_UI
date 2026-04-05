@@ -75,6 +75,8 @@ bool AppSettings_Load(AppPersistState& out)
 	out.sidebarWidth = ReadFloat(ini, L"UI", L"sidebarWidth", 220.0f);
 	out.keepBytecodeDebug = ReadInt(ini, L"Editor", L"keepDebug", 0) != 0;
 
+	out.uiLanguage = AppLanguageFromInt(ReadInt(ini, L"UI", L"language", 1));
+
 	out.fontGlobalScale = std::clamp(out.fontGlobalScale, 0.5f, 3.0f);
 	out.sidebarWidth = std::clamp(out.sidebarWidth, 120.0f, 640.0f);
 
@@ -137,6 +139,7 @@ void AppSettings_Save(HWND hwnd, const AppPersistState& state)
 
 	WriteFloat(ini, L"UI", L"fontScale", state.fontGlobalScale);
 	WriteFloat(ini, L"UI", L"sidebarWidth", state.sidebarWidth);
+	WriteInt(ini, L"UI", L"language", AppLanguageToInt(state.uiLanguage));
 	WriteInt(ini, L"Editor", L"keepDebug", state.keepBytecodeDebug ? 1 : 0);
 
 	const int n = (int)state.openLuaPaths.size();

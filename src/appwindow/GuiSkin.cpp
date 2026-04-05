@@ -1,4 +1,4 @@
-#include "GuiSkin.h"
+#include "appwindow/GuiSkin.h"
 
 namespace GuiSkin {
 

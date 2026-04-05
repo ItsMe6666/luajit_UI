@@ -1,5 +1,7 @@
 #pragma once
 
+#include "appwindow/I18n.h"
+
 #include <Windows.h>
 
 #include <string>
@@ -12,6 +14,7 @@ struct AppPersistState {
 	float fontGlobalScale = 1.0f;
 	float sidebarWidth = 220.0f;
 	bool keepBytecodeDebug = false;
+	AppLanguage uiLanguage = AppLanguage::En;
 	std::vector<std::wstring> openLuaPaths;
 	// 與 openLuaPaths 一一對應：各分頁上次 F5/F6 輸出的 .luac 路徑（寬字元）。
 	std::vector<std::wstring> lastLuacOutPathsWide;

@@ -1,5 +1,6 @@
 #include "appwindow/AppWindowInternal.h"
-#include "GuiSkin.h"
+#include "appwindow/GuiSkin.h"
+#include "appwindow/I18n.h"
 
 #include "imgui.h"
 
@@ -104,56 +105,73 @@ void DrawUi()
 
 	if (ImGui::BeginMenuBar()) {
 		const ImGuiStyle& menuSt = ImGui::GetStyle();
-		const float rowW1 = ImGui::CalcTextSize("開啟 .lua").x + ImGui::CalcTextSize("Ctrl+O").x;
-		const float rowW2 = ImGui::CalcTextSize("儲存 .lua").x + ImGui::CalcTextSize("Ctrl+S").x;
-		const float rowW3 = ImGui::CalcTextSize("編譯 bytecode").x + ImGui::CalcTextSize("F5/F6").x;
+		const float rowW1 = ImGui::CalcTextSize(Tr(I18nMsg::MenuOpenLua)).x + ImGui::CalcTextSize("Ctrl+O").x;
+		const float rowW2 = ImGui::CalcTextSize(Tr(I18nMsg::MenuSaveLua)).x + ImGui::CalcTextSize("Ctrl+S").x;
+		const float rowW3 = ImGui::CalcTextSize(Tr(I18nMsg::MenuCompileBytecode)).x + ImGui::CalcTextSize("F5/F6").x;
 		const float menuMinW = (std::max)((std::max)(rowW1, rowW2), rowW3) + menuSt.ItemInnerSpacing.x * 6.0f + menuSt.WindowPadding.x * 2.0f + 56.0f;
 		ImGui::SetNextWindowSizeConstraints(ImVec2(menuMinW, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
 		ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 14.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(14.0f, 11.0f));
-		if (ImGui::BeginMenu("檔案")) {
-			if (ImGui::MenuItem("開啟 .lua", "Ctrl+O")) {
+		if (ImGui::BeginMenu(Tr(I18nMsg::MenuFile))) {
+			if (ImGui::MenuItem(Tr(I18nMsg::MenuOpenLua), "Ctrl+O")) {
 				if (g_hwnd && PickOpenLuaPath(g_hwnd))
 					AddOrSelectLuaFile(std::wstring(g_openFileBuf.data()), s_status, sizeof(s_status));
 			}
-			if (ImGui::MenuItem("儲存 .lua", "Ctrl+S")) {
+			if (ImGui::MenuItem(Tr(I18nMsg::MenuSaveLua), "Ctrl+S")) {
 				if (g_hwnd)
 					TrySaveLuaSource(g_hwnd, s_status, sizeof(s_status));
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem("編譯 bytecode", "F5/F6") && g_hwnd)
+			if (ImGui::MenuItem(Tr(I18nMsg::MenuCompileBytecode), "F5/F6") && g_hwnd)
 				TryCompileBytecode(g_hwnd, g_keepBytecodeDebug, s_status, sizeof(s_status));
 			ImGui::EndMenu();
 		}
 		ImGui::PopStyleVar(3);
 
+		const float dbgW = (std::max)(
+			ImGui::CalcTextSize(Tr(I18nMsg::KeepDebugUnchecked)).x,
+			ImGui::CalcTextSize(Tr(I18nMsg::KeepDebugChecked)).x);
+		const float langW = (std::max)(
+			ImGui::CalcTextSize(Tr(I18nMsg::LangZhHant)).x,
+			ImGui::CalcTextSize(Tr(I18nMsg::LangEnglish)).x);
 		const float setMenuMinW =
-			(std::max)(
-				(std::max)(ImGui::CalcTextSize(u8"［ ］保留除錯資訊").x, ImGui::CalcTextSize(u8"［O］保留除錯資訊").x),
-				ImGui::CalcTextSize(u8"介面縮放").x + 120.0f)
+			(std::max)((std::max)(dbgW, ImGui::CalcTextSize(Tr(I18nMsg::UiScale)).x + 120.0f),
+				(std::max)(ImGui::CalcTextSize(Tr(I18nMsg::SettingsLanguage)).x, langW))
 			+ menuSt.WindowPadding.x * 2.0f + 48.0f;
 		ImGui::SetNextWindowSizeConstraints(ImVec2(setMenuMinW, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
 		ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 14.0f));
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(14.0f, 11.0f));
-		if (ImGui::BeginMenu(u8"設定")) {
+		if (ImGui::BeginMenu(Tr(I18nMsg::MenuSettings))) {
 			ImGuiIO& ioSet = ImGui::GetIO();
 			float fs = ioSet.FontGlobalScale;
-			if (ImGui::SliderFloat(u8"介面縮放", &fs, 0.75f, 2.0f, "%.2f"))
+			if (ImGui::SliderFloat(Tr(I18nMsg::UiScale), &fs, 0.75f, 2.0f, "%.2f"))
 				ioSet.FontGlobalScale = fs;
 			if (ImGui::IsItemDeactivatedAfterEdit())
 				g_requestSavePersist = true;
 			ImGui::Separator();
-			const char* dbgLabel = g_keepBytecodeDebug ? u8"［O］保留除錯資訊" : u8"［ ］保留除錯資訊";
+			const char* dbgLabel = g_keepBytecodeDebug ? Tr(I18nMsg::KeepDebugChecked) : Tr(I18nMsg::KeepDebugUnchecked);
 			if (ImGui::MenuItem(dbgLabel)) {
 				g_keepBytecodeDebug = !g_keepBytecodeDebug;
 				g_requestSavePersist = true;
 			}
 			if (ImGui::IsItemHovered())
-				ImGui::SetTooltip(
-					u8"［ ］：等同 luajit -b -s（strip）預設。\n"
-					u8"［O］：等同 luajit -b -g，bytecode 含行號等除錯資訊。");
+				ImGui::SetTooltip("%s", Tr(I18nMsg::TooltipKeepDebug));
+			ImGui::Separator();
+			const AppLanguage curLang = AppLanguageGetCurrent();
+			if (ImGui::MenuItem(Tr(I18nMsg::LangZhHant), nullptr, curLang == AppLanguage::ZhHant)) {
+				if (curLang != AppLanguage::ZhHant) {
+					AppLanguageSetCurrent(AppLanguage::ZhHant);
+					g_requestSavePersist = true;
+				}
+			}
+			if (ImGui::MenuItem(Tr(I18nMsg::LangEnglish), nullptr, curLang == AppLanguage::En)) {
+				if (curLang != AppLanguage::En) {
+					AppLanguageSetCurrent(AppLanguage::En);
+					g_requestSavePersist = true;
+				}
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::PopStyleVar(3);
@@ -170,7 +188,7 @@ void DrawUi()
 	g_sidebarWidth = std::clamp(g_sidebarWidth, 120.0f, 640.0f);
 
 	ImGui::BeginChild("##fileSidebarCol", ImVec2(g_sidebarWidth, editorRowH), ImGuiChildFlags_None, ImGuiWindowFlags_NoSavedSettings);
-	ImGui::SeparatorText(u8"Lua 檔案");
+	ImGui::SeparatorText(Tr(I18nMsg::SidebarLuaFiles));
 	const float fileListH = (std::max)(1.0f, ImGui::GetContentRegionAvail().y);
 	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, edSt.WindowPadding.y));
@@ -259,7 +277,7 @@ void DrawUi()
 					g_activeDoc = ii;
 					g_sidebarAnchor = ii;
 					g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
-					std::snprintf(s_status, sizeof(s_status), u8"已選取範圍並切換編輯檔");
+					std::snprintf(s_status, sizeof(s_status), "%s", Tr(I18nMsg::StatusRangeSelectSwitch));
 					g_requestSavePersist = true;
 				} else {
 					SwitchToDoc(ii, s_status, sizeof(s_status));
@@ -280,15 +298,15 @@ void DrawUi()
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 8.0f));
 		if (ImGui::BeginPopupContextItem()) {
 			const bool hasPath = !g_docs[i].path.empty();
-			if (ImGui::MenuItem(u8"開啟檔案所在目錄", nullptr, false, hasPath))
+			if (ImGui::MenuItem(Tr(I18nMsg::CtxOpenFolder), nullptr, false, hasPath))
 				OpenExplorerSelectFile(g_docs[i].path);
 			const int selN = (int)g_sidebarSel.size();
 			const bool inSel = g_sidebarSel.count(ii) != 0;
 			char rmLabel[96];
 			if (inSel && selN > 1)
-				std::snprintf(rmLabel, sizeof(rmLabel), u8"從清單移除已選 (%d)", selN);
+				std::snprintf(rmLabel, sizeof(rmLabel), Tr(I18nMsg::RemoveSelectedFmt), selN);
 			else
-				std::snprintf(rmLabel, sizeof(rmLabel), u8"從清單移除");
+				std::snprintf(rmLabel, sizeof(rmLabel), "%s", Tr(I18nMsg::RemoveFromList));
 			if (ImGui::MenuItem(rmLabel)) {
 				if (inSel && selN > 1)
 					RemoveDocsSetFromList(g_sidebarSel);
@@ -333,7 +351,7 @@ void DrawUi()
 	ImGui::SameLine();
 	ImGui::BeginChild("##editorColumn", ImVec2(0.0f, editorRowH), ImGuiChildFlags_None, ImGuiWindowFlags_NoSavedSettings);
 
-	ImGui::SeparatorText("Lua 原始碼");
+	ImGui::SeparatorText(Tr(I18nMsg::EditorLuaSource));
 	float editorH = ImGui::GetContentRegionAvail().y;
 	editorH = (std::max)(1.0f, editorH);
 	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);

@@ -1,4 +1,5 @@
 #include "appwindow/AppWindowInternal.h"
+#include "appwindow/I18n.h"
 
 #include <shellapi.h>
 
@@ -69,7 +70,7 @@ void SwitchToDoc(int idx, char* statusBuf, size_t statusSz)
 	g_sidebarShiftAnchor = idx;
 	g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
 	if (statusBuf && statusSz)
-		std::snprintf(statusBuf, statusSz, "已切換編輯檔");
+		std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::SwitchedEditorFile));
 	g_requestSavePersist = true;
 }
 
@@ -78,13 +79,13 @@ void AddOrSelectLuaFile(const std::wstring& wpath, char* statusBuf, size_t statu
 {
 	EnsureLuaEditorInited();
 	if (!WStringEndsWithLuaCI(wpath)) {
-		std::snprintf(statusBuf, statusSz, "僅支援拖入或開啟 .lua 檔");
+		std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::LuaOnly));
 		return;
 	}
 	const int existing = FindDocByPath(wpath);
 	if (existing >= 0) {
 		SwitchToDoc(existing, statusBuf, statusSz);
-		std::snprintf(statusBuf, statusSz, "已切換至已開啟的檔案");
+		std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::SwitchedToOpened));
 		return;
 	}
 	std::string err;
@@ -105,7 +106,7 @@ void AddOrSelectLuaFile(const std::wstring& wpath, char* statusBuf, size_t statu
 	g_sidebarAnchor = g_activeDoc;
 	g_sidebarShiftAnchor = g_activeDoc;
 	g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
-	std::snprintf(statusBuf, statusSz, "已加入 Lua 檔");
+	std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::AddedLuaFile));
 	g_requestSavePersist = true;
 }
 
@@ -216,7 +217,7 @@ void RemoveDocAt(int idx)
 std::wstring FileNameFromPath(const std::wstring& p)
 {
 	if (p.empty())
-		return L"(未命名)";
+		return I18nUnnamedFileW();
 	const size_t slash = p.find_last_of(L"\\/");
 	if (slash == std::wstring::npos)
 		return p;

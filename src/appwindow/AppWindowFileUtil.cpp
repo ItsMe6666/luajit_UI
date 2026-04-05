@@ -1,4 +1,5 @@
 #include "appwindow/AppWindowInternal.h"
+#include "appwindow/I18n.h"
 
 #include <cstdio>
 
@@ -74,29 +75,29 @@ bool ReadWholeFileUtf8(const std::wstring& wpath, std::string& out, std::string&
 {
 	FILE* fp = nullptr;
 	if (_wfopen_s(&fp, wpath.c_str(), L"rb") != 0 || !fp) {
-		err = "無法開啟檔案";
+		err = Tr(I18nMsg::ErrOpenFile);
 		return false;
 	}
 	if (fseek(fp, 0, SEEK_END) != 0) {
 		fclose(fp);
-		err = "無法讀取檔案";
+		err = Tr(I18nMsg::ErrReadFile);
 		return false;
 	}
 	const long sz = ftell(fp);
 	if (sz < 0) {
 		fclose(fp);
-		err = "無法讀取檔案大小";
+		err = Tr(I18nMsg::ErrReadSize);
 		return false;
 	}
 	if (fseek(fp, 0, SEEK_SET) != 0) {
 		fclose(fp);
-		err = "無法讀取檔案";
+		err = Tr(I18nMsg::ErrReadFile);
 		return false;
 	}
 	out.resize((size_t)sz);
 	if (sz > 0 && fread(out.data(), 1, (size_t)sz, fp) != (size_t)sz) {
 		fclose(fp);
-		err = "讀取失敗";
+		err = Tr(I18nMsg::ErrReadFail);
 		return false;
 	}
 	fclose(fp);
@@ -110,12 +111,12 @@ bool WriteWholeFileUtf8(const std::wstring& wpath, std::string_view data, std::s
 {
 	FILE* fp = nullptr;
 	if (_wfopen_s(&fp, wpath.c_str(), L"wb") != 0 || !fp) {
-		err = "無法寫入檔案";
+		err = Tr(I18nMsg::ErrWriteFile);
 		return false;
 	}
 	if (!data.empty() && fwrite(data.data(), 1, data.size(), fp) != data.size()) {
 		fclose(fp);
-		err = "寫入失敗";
+		err = Tr(I18nMsg::ErrWriteFail);
 		return false;
 	}
 	fclose(fp);

@@ -1,5 +1,6 @@
 // luaL_loadbuffer → string.dump(strip) → 二進位寫入指定路徑。
 #include "LuaBytecode.h"
+#include "appwindow/I18n.h"
 
 #include <Windows.h>
 #include <cstdio>
@@ -40,7 +41,7 @@ bool CompileUtf8ToFile(
 
 	lua_State* L = luaL_newstate();
 	if (!L) {
-		errorUtf8 = "luaL_newstate 失敗";
+		errorUtf8 = Tr(I18nMsg::LbcNewstateFail);
 		return false;
 	}
 
@@ -49,7 +50,7 @@ bool CompileUtf8ToFile(
 	int st = luaL_loadbuffer(L, sourceUtf8.data(), sourceUtf8.size(), "=(buffer)");
 	if (st != LUA_OK) {
 		const char* msg = lua_tostring(L, -1);
-		errorUtf8 = msg ? msg : "載入失敗";
+		errorUtf8 = msg ? msg : Tr(I18nMsg::LbcLoadFail);
 		lua_pop(L, 1);
 		lua_close(L);
 		return false;
@@ -64,7 +65,7 @@ bool CompileUtf8ToFile(
 	st = lua_pcall(L, 2, 1, 0);
 	if (st != LUA_OK) {
 		const char* msg = lua_tostring(L, -1);
-		errorUtf8 = msg ? msg : "string.dump 失敗";
+		errorUtf8 = msg ? msg : Tr(I18nMsg::LbcDumpFail);
 		lua_pop(L, 1);
 		lua_close(L);
 		return false;
@@ -73,7 +74,7 @@ bool CompileUtf8ToFile(
 	size_t outLen = 0;
 	const char* dumped = lua_tolstring(L, -1, &outLen);
 	if (!dumped || outLen == 0) {
-		errorUtf8 = "string.dump 回傳空字串";
+		errorUtf8 = Tr(I18nMsg::LbcDumpEmpty);
 		lua_pop(L, 1);
 		lua_close(L);
 		return false;
@@ -85,19 +86,19 @@ bool CompileUtf8ToFile(
 
 	std::wstring wpath = Utf8ToWide(outputPathUtf8);
 	if (wpath.empty()) {
-		errorUtf8 = "輸出路徑無效或 UTF-8 編碼錯誤";
+		errorUtf8 = Tr(I18nMsg::LbcPathInvalid);
 		return false;
 	}
 
 	FILE* fp = nullptr;
 	if (_wfopen_s(&fp, wpath.c_str(), L"wb") != 0 || !fp) {
-		errorUtf8 = "無法建立輸出檔案";
+		errorUtf8 = Tr(I18nMsg::LbcCannotCreateOut);
 		return false;
 	}
 	const size_t n = fwrite(bytes.data(), 1, bytes.size(), fp);
 	fclose(fp);
 	if (n != bytes.size()) {
-		errorUtf8 = "寫入檔案不完整";
+		errorUtf8 = Tr(I18nMsg::LbcWriteIncomplete);
 		return false;
 	}
 
