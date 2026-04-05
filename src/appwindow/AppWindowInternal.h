@@ -38,6 +38,7 @@ extern std::vector<LuaDoc> g_docs;
 extern int g_activeDoc;
 extern float g_sidebarWidth;
 extern bool g_keepBytecodeDebug;
+extern std::string g_afterBuildScriptUtf8;
 extern bool g_requestSavePersist;
 extern float g_cachedFontScaleForSave;
 
@@ -114,6 +115,8 @@ void TrySaveLuaSource(HWND owner, char* statusBuf, size_t statusSz);
 void TryCompileBytecode(HWND owner, bool keepDebug, char* statusBuf, size_t statusSz);
 // 使用上次記錄的 .luac 路徑重新編譯（無對話框）
 void TryCompileBytecodeLastPath(bool keepDebug, char* statusBuf, size_t statusSz);
+// 編譯成功後執行設定中的批次內容（暫存檔＋環境變數 OUTPATH／OUTDIR／OUTNAME）
+void RunAfterBuildHook(const std::string& luacOutPathUtf8, char* statusBuf, size_t statusSz);
 
 // --- D3D9 ---
 // 建立 D3D9 裝置與呈現參數（供 ImGui 繪製）

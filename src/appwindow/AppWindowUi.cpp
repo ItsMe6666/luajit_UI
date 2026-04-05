@@ -8,13 +8,18 @@
 
 #include <cfloat>
 #include <cstdio>
+#include <cstring>
 #include <algorithm>
+#include <vector>
 
 namespace appwindow {
 
 // 繪製主視窗 ImGui：標題列、選單、側欄、編輯器與狀態列
 void DrawUi()
 {
+	static bool s_openAfterBuildEditor = false;
+	static std::vector<char> s_afterBuildEditBuf;
+
 	ImGuiViewport* vp = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(vp->Pos);
 	ImGui::SetNextWindowSize(vp->Size);
@@ -135,9 +140,10 @@ void DrawUi()
 		const float langW = (std::max)(
 			ImGui::CalcTextSize(Tr(I18nMsg::LangZhHant)).x,
 			ImGui::CalcTextSize(Tr(I18nMsg::LangEnglish)).x);
+		const float afterBuildW = ImGui::CalcTextSize(Tr(I18nMsg::SettingsAfterBuild)).x;
 		const float setMenuMinW =
 			(std::max)((std::max)(dbgW, ImGui::CalcTextSize(Tr(I18nMsg::UiScale)).x + 120.0f),
-				(std::max)(ImGui::CalcTextSize(Tr(I18nMsg::SettingsLanguage)).x, langW))
+				(std::max)((std::max)(ImGui::CalcTextSize(Tr(I18nMsg::SettingsLanguage)).x, langW), afterBuildW))
 			+ menuSt.WindowPadding.x * 2.0f + 48.0f;
 		ImGui::SetNextWindowSizeConstraints(ImVec2(setMenuMinW, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
 		ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 0.0f);
@@ -172,11 +178,66 @@ void DrawUi()
 					g_requestSavePersist = true;
 				}
 			}
+			ImGui::Separator();
+			if (ImGui::MenuItem(Tr(I18nMsg::SettingsAfterBuild)))
+				s_openAfterBuildEditor = true;
 			ImGui::EndMenu();
 		}
 		ImGui::PopStyleVar(3);
 		ImGui::EndMenuBar();
 	}
+
+	if (s_openAfterBuildEditor) {
+		char afterBuildPopupName[192];
+		std::snprintf(
+			afterBuildPopupName,
+			sizeof(afterBuildPopupName),
+			"%s##AfterBuildDlg",
+			Tr(I18nMsg::AfterBuildPopupTitleBar));
+		ImGui::OpenPopup(afterBuildPopupName);
+		s_openAfterBuildEditor = false;
+		const size_t need = g_afterBuildScriptUtf8.size() + 1;
+		if (s_afterBuildEditBuf.size() < (std::max)(need, (size_t)16384))
+			s_afterBuildEditBuf.resize((std::max)(need, (size_t)16384));
+		if (!g_afterBuildScriptUtf8.empty())
+			std::memcpy(s_afterBuildEditBuf.data(), g_afterBuildScriptUtf8.data(), g_afterBuildScriptUtf8.size());
+		s_afterBuildEditBuf[g_afterBuildScriptUtf8.size()] = '\0';
+	}
+
+	ImGui::SetNextWindowSize(ImVec2(580.0f, 380.0f), ImGuiCond_FirstUseEver);
+	ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(20.0f, 14.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(14.0f, 11.0f));
+	char afterBuildPopupName[192];
+	std::snprintf(
+		afterBuildPopupName,
+		sizeof(afterBuildPopupName),
+		"%s##AfterBuildDlg",
+		Tr(I18nMsg::AfterBuildPopupTitleBar));
+	if (ImGui::BeginPopupModal(afterBuildPopupName, nullptr, ImGuiWindowFlags_None)) {
+		ImGui::TextUnformatted(Tr(I18nMsg::AfterBuildModalTitle));
+		ImGui::Spacing();
+		ImGui::TextWrapped("%s", Tr(I18nMsg::AfterBuildEnvHint));
+		ImGui::Spacing();
+		const float btnRowH = ImGui::GetFrameHeightWithSpacing() * 1.25f;
+		const float textH = (std::max)(140.0f, ImGui::GetContentRegionAvail().y - btnRowH);
+		ImGui::InputTextMultiline(
+			"##afterbuild_mle",
+			s_afterBuildEditBuf.data(),
+			s_afterBuildEditBuf.size(),
+			ImVec2(-1.0f, textH),
+			ImGuiInputTextFlags_AllowTabInput);
+		if (ImGui::Button(Tr(I18nMsg::AfterBuildOk), ImVec2(120.0f, 0.0f))) {
+			g_afterBuildScriptUtf8.assign(s_afterBuildEditBuf.data());
+			SavePersistNow();
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button(Tr(I18nMsg::AfterBuildCancel), ImVec2(120.0f, 0.0f)))
+			ImGui::CloseCurrentPopup();
+		ImGui::EndPopup();
+	}
+	ImGui::PopStyleVar(3);
 
 	const float rowAvailH = ImGui::GetContentRegionAvail().y;
 	const ImGuiStyle& edSt = ImGui::GetStyle();

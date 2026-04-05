@@ -19,6 +19,7 @@ std::vector<LuaDoc> g_docs;
 int g_activeDoc = -1;
 float g_sidebarWidth = 220.0f;
 bool g_keepBytecodeDebug = false;
+std::string g_afterBuildScriptUtf8;
 bool g_requestSavePersist = false;
 float g_cachedFontScaleForSave = 1.0f;
 

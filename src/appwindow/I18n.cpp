@@ -53,6 +53,26 @@ const char* Tr(I18nMsg id)
 		return en ? "Traditional Chinese" : u8"中文（繁體）";
 	case I18nMsg::LangEnglish:
 		return "English";
+	case I18nMsg::SettingsAfterBuild:
+		return en ? "AfterBuild" : u8"編譯後";
+	case I18nMsg::AfterBuildPopupTitleBar:
+		return en ? "AfterBuild" : u8"編譯後";
+	case I18nMsg::AfterBuildModalTitle:
+		return en ? "After successful compile — batch (.bat) script" : u8"編譯成功後執行的批次檔（.bat）內容";
+	case I18nMsg::AfterBuildEnvHint:
+		return en
+			? "Runs via cmd.exe after each successful F5/F6 compile. Empty = disabled.\n"
+			  "Environment: OUTPATH (full .luac path), OUTDIR (folder), OUTNAME (file name).\n"
+			: u8"每次 F5/F6 編譯成功後由 cmd 執行；留空則不執行。\n"
+			  u8"環境變數：OUTPATH（.luac 完整路徑）、OUTDIR（資料夾）、OUTNAME（檔名）。\n";
+	case I18nMsg::AfterBuildOk:
+		return en ? "Save" : u8"儲存";
+	case I18nMsg::AfterBuildCancel:
+		return en ? "Cancel" : u8"取消";
+	case I18nMsg::AfterBuildRunFailed:
+		return en ? "After-build: failed to start cmd" : u8"編譯後指令：無法啟動 cmd";
+	case I18nMsg::AfterBuildExitCodeFmt:
+		return en ? "After-build: exit code %u" : u8"編譯後指令：結束代碼 %u";
 	case I18nMsg::KeepDebugUnchecked:
 		return en ? "[ ] Strip debug (default)" : u8"［ ］保留除錯資訊";
 	case I18nMsg::KeepDebugChecked:

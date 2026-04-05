@@ -2,7 +2,9 @@
 #include "AppSettings.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <string>
+#include <string_view>
 
 namespace {
 
@@ -20,6 +22,64 @@ std::wstring SettingsIniPath()
 	p.resize(slash + 1);
 	p += L"settings.ini";
 	return p;
+}
+
+std::wstring AfterBuildTxtPath()
+{
+	std::wstring p = SettingsIniPath();
+	if (p.empty())
+		return L"";
+	const size_t slash = p.find_last_of(L"\\/");
+	if (slash == std::wstring::npos)
+		return L"";
+	return p.substr(0, slash + 1) + L"afterbuild.txt";
+}
+
+bool ReadOptionalUtf8File(const std::wstring& wpath, std::string& out)
+{
+	out.clear();
+	FILE* fp = nullptr;
+	if (_wfopen_s(&fp, wpath.c_str(), L"rb") != 0 || !fp)
+		return true;
+	if (fseek(fp, 0, SEEK_END) != 0) {
+		fclose(fp);
+		out.clear();
+		return false;
+	}
+	const long sz = ftell(fp);
+	if (sz < 0) {
+		fclose(fp);
+		out.clear();
+		return false;
+	}
+	if (fseek(fp, 0, SEEK_SET) != 0) {
+		fclose(fp);
+		out.clear();
+		return false;
+	}
+	out.resize((size_t)sz);
+	if (sz > 0 && fread(out.data(), 1, (size_t)sz, fp) != (size_t)sz) {
+		fclose(fp);
+		out.clear();
+		return false;
+	}
+	fclose(fp);
+	if (out.size() >= 3 && (unsigned char)out[0] == 0xEF && (unsigned char)out[1] == 0xBB && (unsigned char)out[2] == 0xBF)
+		out.erase(0, 3);
+	return true;
+}
+
+bool WriteOptionalUtf8File(const std::wstring& wpath, std::string_view data)
+{
+	FILE* fp = nullptr;
+	if (_wfopen_s(&fp, wpath.c_str(), L"wb") != 0 || !fp)
+		return false;
+	if (!data.empty() && fwrite(data.data(), 1, data.size(), fp) != data.size()) {
+		fclose(fp);
+		return false;
+	}
+	fclose(fp);
+	return true;
 }
 
 int ReadInt(const std::wstring& ini, const wchar_t* sec, const wchar_t* key, int def)
@@ -60,6 +120,13 @@ void WriteFloat(const std::wstring& ini, const wchar_t* sec, const wchar_t* key,
 bool AppSettings_Load(AppPersistState& out)
 {
 	std::wstring ini = SettingsIniPath();
+	{
+		std::wstring abp = AfterBuildTxtPath();
+		if (!abp.empty())
+			ReadOptionalUtf8File(abp, out.afterBuildScriptUtf8);
+		else
+			out.afterBuildScriptUtf8.clear();
+	}
 	if (ini.empty() || GetFileAttributesW(ini.c_str()) == INVALID_FILE_ATTRIBUTES)
 		return false;
 
@@ -156,4 +223,8 @@ void AppSettings_Save(HWND hwnd, const AppPersistState& state)
 		const wchar_t* lu = (i < (int)state.lastLuacOutPathsWide.size()) ? state.lastLuacOutPathsWide[i].c_str() : L"";
 		WritePrivateProfileStringW(L"LuacOut", key, lu, ini.c_str());
 	}
+
+	std::wstring ab = AfterBuildTxtPath();
+	if (!ab.empty())
+		WriteOptionalUtf8File(ab, state.afterBuildScriptUtf8);
 }

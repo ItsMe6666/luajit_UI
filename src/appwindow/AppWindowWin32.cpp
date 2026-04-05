@@ -99,6 +99,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			s.fontGlobalScale = g_cachedFontScaleForSave;
 			s.sidebarWidth = g_sidebarWidth;
 			s.keepBytecodeDebug = g_keepBytecodeDebug;
+			s.uiLanguage = AppLanguageGetCurrent();
+			s.afterBuildScriptUtf8 = g_afterBuildScriptUtf8;
 			AppendPersistFileSlots(s);
 			AppSettings_Save(hwnd, s);
 		}

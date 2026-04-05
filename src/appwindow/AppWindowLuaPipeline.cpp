@@ -4,12 +4,86 @@
 
 #include <commdlg.h>
 
+#include <cctype>
 #include <cstdio>
+#include <cstring>
+#include <cwchar>
+#include <string>
 #include <string_view>
+#include <vector>
 
 namespace appwindow {
 
 namespace {
+
+static void SplitPathUtf8(const std::string& path, std::string& dirOut, std::string& nameOut)
+{
+	const size_t i = path.find_last_of("/\\");
+	if (i == std::string::npos) {
+		dirOut.clear();
+		nameOut = path;
+	} else {
+		dirOut = path.substr(0, i);
+		nameOut = path.substr(i + 1);
+	}
+}
+
+static std::string EscapeBatchSetValueUtf8(std::string_view s)
+{
+	std::string r;
+	r.reserve(s.size() + 8);
+	for (unsigned char c : s) {
+		if (c == '"')
+			r += "\"\"";
+		else
+			r += (char)c;
+	}
+	return r;
+}
+
+static void TrimScriptInPlace(std::string_view& sv)
+{
+	while (!sv.empty() && std::isspace((unsigned char)sv.front()))
+		sv.remove_prefix(1);
+	while (!sv.empty() && std::isspace((unsigned char)sv.back()))
+		sv.remove_suffix(1);
+}
+
+static void AppendStatusPipe(char* statusBuf, size_t statusSz, const char* extra)
+{
+	if (!extra || !extra[0] || statusSz < 4)
+		return;
+	const size_t len = std::strlen(statusBuf);
+	if (len >= statusSz - 1)
+		return;
+	const char* sep = " | ";
+	const size_t sepL = std::strlen(sep);
+	const size_t exL = std::strlen(extra);
+	if (len + sepL + exL + 1 > statusSz)
+		return;
+	std::memcpy(statusBuf + len, sep, sepL);
+	std::memcpy(statusBuf + len + sepL, extra, exL + 1);
+}
+
+// GetTempFileNameW 固定產生 .tmp；在 Win11 上 cmd /c "…\.tmp" 常觸發「用 App 開啟 .tmp」而非執行批次。改為唯一路徑 + .bat。
+static bool AllocUniqueTempBatPath(const wchar_t* tempDir, const wchar_t* prefix, wchar_t outPath[MAX_PATH])
+{
+	if (GetTempFileNameW(tempDir, prefix, 0, outPath) == 0)
+		return false;
+	DeleteFileW(outPath);
+	const size_t len = std::wcslen(outPath);
+	if (len < 4)
+		return false;
+	wchar_t* ext = outPath + len - 4;
+	if (ext[0] != L'.')
+		return false;
+	if ((ext[1] != L't' && ext[1] != L'T') || (ext[2] != L'm' && ext[2] != L'M') || (ext[3] != L'p' && ext[3] != L'P'))
+		return false;
+	ext[1] = L'b';
+	ext[2] = L'a';
+	ext[3] = L't';
+	return true;
+}
 
 // 由 .lua 路徑推導預設的 .luac 輸出路徑
 std::wstring LuacDefaultPathWideFromLua(const std::wstring& luaPath)
@@ -72,6 +146,7 @@ void SavePersistNow()
 	s.sidebarWidth = g_sidebarWidth;
 	s.keepBytecodeDebug = g_keepBytecodeDebug;
 	s.uiLanguage = AppLanguageGetCurrent();
+	s.afterBuildScriptUtf8 = g_afterBuildScriptUtf8;
 	AppendPersistFileSlots(s);
 	AppSettings_Save(g_hwnd, s);
 }
@@ -213,6 +288,7 @@ void TryCompileBytecode(HWND owner, bool keepDebug, char* statusBuf, size_t stat
 			g_orphanLastLuacOutPathUtf8 = pathUtf8;
 		g_requestSavePersist = true;
 		std::snprintf(statusBuf, statusSz, Tr(I18nMsg::WrittenToFmt), pathUtf8.c_str());
+		RunAfterBuildHook(pathUtf8, statusBuf, statusSz);
 	} else
 		std::snprintf(statusBuf, statusSz, "%s", err.c_str());
 }
@@ -236,10 +312,127 @@ void TryCompileBytecodeLastPath(bool keepDebug, char* statusBuf, size_t statusSz
 	LuaBytecode::CompileOptions opt;
 	opt.stripDebug = !keepDebug;
 	const bool ok = LuaBytecode::CompileUtf8ToFile(std::string_view(luaSrc), target, opt, err);
-	if (ok)
+	if (ok) {
 		std::snprintf(statusBuf, statusSz, Tr(I18nMsg::WrittenToFmt), target.c_str());
-	else
+		RunAfterBuildHook(target, statusBuf, statusSz);
+	} else
 		std::snprintf(statusBuf, statusSz, "%s", err.c_str());
+}
+
+void RunAfterBuildHook(const std::string& luacOutPathUtf8, char* statusBuf, size_t statusSz)
+{
+	std::string_view script(g_afterBuildScriptUtf8);
+	TrimScriptInPlace(script);
+	if (script.empty() || luacOutPathUtf8.empty())
+		return;
+
+	std::string dir8, name8;
+	SplitPathUtf8(luacOutPathUtf8, dir8, name8);
+	const std::string escPath = EscapeBatchSetValueUtf8(luacOutPathUtf8);
+	const std::string escDir = EscapeBatchSetValueUtf8(dir8);
+	const std::string escName = EscapeBatchSetValueUtf8(name8);
+
+	wchar_t tempDir[MAX_PATH];
+	if (GetTempPathW(MAX_PATH, tempDir) == 0 || tempDir[0] == L'\0') {
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+	wchar_t wrapPath[MAX_PATH];
+	wchar_t userPath[MAX_PATH];
+	if (!AllocUniqueTempBatPath(tempDir, L"ljw", wrapPath)) {
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+	if (!AllocUniqueTempBatPath(tempDir, L"lju", userPath)) {
+		DeleteFileW(wrapPath);
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+
+	std::string userPathUtf8;
+	if (!WidePathToUtf8(std::wstring(userPath), userPathUtf8)) {
+		DeleteFileW(wrapPath);
+		DeleteFileW(userPath);
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+	const std::string escUserCall = EscapeBatchSetValueUtf8(userPathUtf8);
+
+	std::string userBody;
+	userBody.reserve(script.size() + 4);
+	userBody.append("\xEF\xBB\xBF");
+	userBody.append(script.data(), script.size());
+
+	std::string wrap;
+	wrap.reserve(512 + escPath.size() + escDir.size() + escName.size() + userPathUtf8.size());
+	wrap.append("\xEF\xBB\xBF");
+	wrap += "@echo off\r\nchcp 65001 >nul\r\n";
+	wrap += "set \"OUTPATH=";
+	wrap += escPath;
+	wrap += "\"\r\nset \"OUTDIR=";
+	wrap += escDir;
+	wrap += "\"\r\nset \"OUTNAME=";
+	wrap += escName;
+	wrap += "\"\r\ncall \"";
+	wrap += escUserCall;
+	wrap += "\"\r\n";
+
+	std::string werr;
+	if (!WriteWholeFileUtf8(std::wstring(userPath), userBody, werr)) {
+		DeleteFileW(wrapPath);
+		DeleteFileW(userPath);
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+	if (!WriteWholeFileUtf8(std::wstring(wrapPath), wrap, werr)) {
+		DeleteFileW(wrapPath);
+		DeleteFileW(userPath);
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+
+	std::wstring cmdLine = L"cmd.exe /d /s /c \"";
+	cmdLine += wrapPath;
+	cmdLine += L'"';
+	std::vector<wchar_t> cmdBuf(cmdLine.begin(), cmdLine.end());
+	cmdBuf.push_back(L'\0');
+
+	STARTUPINFOW si = {};
+	si.cb = sizeof(si);
+	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.wShowWindow = SW_HIDE;
+	PROCESS_INFORMATION pi = {};
+	const BOOL started = CreateProcessW(
+		nullptr,
+		cmdBuf.data(),
+		nullptr,
+		nullptr,
+		FALSE,
+		CREATE_NO_WINDOW,
+		nullptr,
+		nullptr,
+		&si,
+		&pi);
+
+	if (!started) {
+		DeleteFileW(wrapPath);
+		DeleteFileW(userPath);
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+	CloseHandle(pi.hThread);
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	DWORD exitCode = 1;
+	GetExitCodeProcess(pi.hProcess, &exitCode);
+	CloseHandle(pi.hProcess);
+	DeleteFileW(wrapPath);
+	DeleteFileW(userPath);
+
+	if (exitCode != 0) {
+		char extra[96];
+		std::snprintf(extra, sizeof(extra), Tr(I18nMsg::AfterBuildExitCodeFmt), (unsigned)exitCode);
+		AppendStatusPipe(statusBuf, statusSz, extra);
+	}
 }
 
 } // namespace appwindow

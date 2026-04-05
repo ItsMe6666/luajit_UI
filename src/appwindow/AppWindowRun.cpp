@@ -21,6 +21,7 @@ bool Run()
 	AppPersistState bootPersist;
 	const bool bootOk = AppSettings_Load(bootPersist);
 	AppLanguageSetCurrent(bootOk ? bootPersist.uiLanguage : AppLanguage::En);
+	g_afterBuildScriptUtf8 = std::move(bootPersist.afterBuildScriptUtf8);
 
 	static constexpr wchar_t kClassName[] = L"LuaJIT_UI_ImGuiDx9";
 	// 與 resourse/app.rc 內 1 ICON 相同；工作列取的是視窗圖示，非僅 EXE 檔圖示。

@@ -15,6 +15,8 @@ struct AppPersistState {
 	float sidebarWidth = 220.0f;
 	bool keepBytecodeDebug = false;
 	AppLanguage uiLanguage = AppLanguage::En;
+	// 與執行檔同目錄之 afterbuild.txt（UTF-8），編譯成功後由 cmd 執行；空則略過。
+	std::string afterBuildScriptUtf8;
 	std::vector<std::wstring> openLuaPaths;
 	// 與 openLuaPaths 一一對應：各分頁上次 F5/F6 輸出的 .luac 路徑（寬字元）。
 	std::vector<std::wstring> lastLuacOutPathsWide;
