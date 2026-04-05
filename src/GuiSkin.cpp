@@ -2,6 +2,7 @@
 
 namespace GuiSkin {
 
+// 圓角、間距與配色（主視窗外框圓角由 DWM 處理，此處 WindowRounding 設 0）。
 void ApplyStyle()
 {
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -10,7 +11,8 @@ void ApplyStyle()
 	const ImVec4 accent = ImVec4(0.28f, 0.78f, 0.85f, 1.0f);
 	const ImVec4 accentDim = ImVec4(0.16f, 0.48f, 0.55f, 0.9f);
 
-	style.WindowRounding = 10.0f;
+	/* 頂層 HWND 圓角由 DWM（DWMWCP_ROUND）負責；此處設 0 避免與系統外框雙重圓角。子視窗仍用 ChildRounding。 */
+	style.WindowRounding = 0.0f;
 	style.ChildRounding = 8.0f;
 	style.FrameRounding = 6.0f;
 	style.GrabRounding = 6.0f;
@@ -49,6 +51,7 @@ void ApplyStyle()
 	colors[ImGuiCol_SeparatorActive] = accent;
 }
 
+// 依序嘗試微軟正黑/雅黑 TTC，失敗則退回 ImGui 預設字型。
 void LoadCjkFont()
 {
 	ImGuiIO& io = ImGui::GetIO();
@@ -70,6 +73,7 @@ void LoadCjkFont()
 	io.Fonts->AddFontDefault();
 }
 
+// 自訂標題列上的圖示按鈕（隱形按鈕 + 自繪背景與 glyph）；左鍵點擊回傳 true。
 bool TitleBarIconButton(const char* str_id, ImVec2 screen_pos, const ImVec2& size,
 	ImU32 col_n, ImU32 col_h, ImU32 col_a, const char* glyph)
 {

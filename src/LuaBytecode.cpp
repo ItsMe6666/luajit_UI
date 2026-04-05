@@ -1,3 +1,4 @@
+// luaL_loadbuffer → string.dump(strip) → 二進位寫入指定路徑。
 #include "LuaBytecode.h"
 
 #include <Windows.h>
@@ -14,7 +15,7 @@ namespace LuaBytecode {
 
 namespace {
 
-static std::wstring Utf8ToWide(std::string_view utf8)
+static std::wstring Utf8ToWide(std::string_view utf8) // 輸出路徑給 _wfopen_s 用
 {
 	if (utf8.empty())
 		return L"";
@@ -28,6 +29,7 @@ static std::wstring Utf8ToWide(std::string_view utf8)
 
 } // namespace
 
+// 建立 Lua 狀態、載入原始碼、string.dump 取得 bytecode、寫入二進位檔。
 bool CompileUtf8ToFile(
 	std::string_view sourceUtf8,
 	const std::string& outputPathUtf8,

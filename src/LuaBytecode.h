@@ -3,6 +3,7 @@
 #include <string>
 #include <string_view>
 
+// 用內嵌 LuaJIT 將 UTF-8 原始碼編譯成 bytecode 並寫入檔案。
 namespace LuaBytecode {
 
 struct CompileOptions {

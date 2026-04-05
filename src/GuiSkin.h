@@ -2,6 +2,7 @@
 
 #include "imgui.h"
 
+// ImGui 外觀：暗色主題、載入中文字型、自訂標題列小按鈕。
 namespace GuiSkin {
 
 void ApplyStyle();
