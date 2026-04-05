@@ -23,14 +23,33 @@ bool Run()
 	AppLanguageSetCurrent(bootOk ? bootPersist.uiLanguage : AppLanguage::En);
 
 	static constexpr wchar_t kClassName[] = L"LuaJIT_UI_ImGuiDx9";
+	// 與 resourse/app.rc 內 1 ICON 相同；工作列取的是視窗圖示，非僅 EXE 檔圖示。
+	static constexpr WORD kAppIconId = 1;
 
-	WNDCLASSW wc = {};
+	WNDCLASSEXW wc = {};
+	wc.cbSize = sizeof(wc);
 	wc.lpfnWndProc = WndProc;
 	wc.hInstance = GetModuleHandleW(nullptr);
 	wc.lpszClassName = kClassName;
 	wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
+	wc.hIcon = (HICON)LoadImageW(
+		wc.hInstance,
+		MAKEINTRESOURCEW(kAppIconId),
+		IMAGE_ICON,
+		GetSystemMetrics(SM_CXICON),
+		GetSystemMetrics(SM_CYICON),
+		0);
+	wc.hIconSm = (HICON)LoadImageW(
+		wc.hInstance,
+		MAKEINTRESOURCEW(kAppIconId),
+		IMAGE_ICON,
+		GetSystemMetrics(SM_CXSMICON),
+		GetSystemMetrics(SM_CYSMICON),
+		0);
+	if (!wc.hIconSm && wc.hIcon)
+		wc.hIconSm = wc.hIcon;
 
-	if (!RegisterClassW(&wc))
+	if (!RegisterClassExW(&wc))
 		return false;
 
 	HWND hwnd = CreateWindowExW(
@@ -51,6 +70,11 @@ bool Run()
 		UnregisterClassW(kClassName, wc.hInstance);
 		return false;
 	}
+
+	if (wc.hIcon)
+		SendMessageW(hwnd, WM_SETICON, ICON_BIG, (LPARAM)wc.hIcon);
+	if (wc.hIconSm)
+		SendMessageW(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)wc.hIconSm);
 
 	ApplyPrimaryWindowCornerPreference(hwnd);
 

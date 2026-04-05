@@ -38,6 +38,7 @@ target("luajit_ui")
         add_syslinks("d3d9", "imm32", "comdlg32", "shell32", "dwmapi")
         add_cxflags("/utf-8", { force = true })
         add_ldflags("/SUBSYSTEM:WINDOWS", { force = true })
+        add_files(path.join(root, "resourse/app.rc"))
     end
 
     if is_mode("debug") then
