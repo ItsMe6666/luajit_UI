@@ -18,6 +18,7 @@ bool g_luaEditorInited = false;
 std::vector<LuaDoc> g_docs;
 int g_activeDoc = -1;
 float g_sidebarWidth = 220.0f;
+float g_logPanelHeight = 120.0f;
 bool g_keepBytecodeDebug = false;
 std::string g_afterBuildScriptUtf8;
 bool g_requestSavePersist = false;
@@ -32,6 +33,10 @@ bool g_pendingCompileBytecode = false;
 bool g_pendingCompileBytecodeLastPath = false;
 std::vector<std::wstring> g_pendingDropPaths;
 std::string g_orphanLastLuacOutPathUtf8;
+
+std::string g_appLogUtf8;
+bool g_appLogScrollToBottom = false;
+std::string g_pendingAfterBuildLogUtf8;
 
 std::unordered_set<int> g_sidebarSel;
 int g_sidebarAnchor = -1;

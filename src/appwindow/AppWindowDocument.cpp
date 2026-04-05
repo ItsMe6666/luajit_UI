@@ -6,8 +6,42 @@
 #include <algorithm>
 #include <cstdio>
 #include <string>
+#include <string_view>
 
 namespace appwindow {
+
+namespace {
+
+void TrimAppLogToMax(std::string& s)
+{
+	const size_t kLogMax = 60000;
+	if (s.size() <= kLogMax)
+		return;
+	const size_t over = s.size() - kLogMax;
+	const size_t cutAt = s.find('\n', over);
+	if (cutAt != std::string::npos)
+		s.erase(0, cutAt + 1);
+	else
+		s.erase(0, over);
+}
+
+} // namespace
+
+void AppendAppLogUtf8(std::string_view textUtf8)
+{
+	std::string_view chunk = textUtf8;
+	while (!chunk.empty() && (chunk.front() == '\r' || chunk.front() == '\n' || chunk.front() == ' ' || chunk.front() == '\t'))
+		chunk.remove_prefix(1);
+	while (!chunk.empty() && (chunk.back() == '\r' || chunk.back() == '\n' || chunk.back() == ' ' || chunk.back() == '\t'))
+		chunk.remove_suffix(1);
+	if (chunk.empty())
+		return;
+	if (!g_appLogUtf8.empty())
+		g_appLogUtf8 += '\n';
+	g_appLogUtf8.append(chunk.data(), chunk.size());
+	TrimAppLogToMax(g_appLogUtf8);
+	g_appLogScrollToBottom = true;
+}
 
 // 將編輯器各行合併為單一 UTF-8 字串
 std::string LuaEditorGetBufferUtf8()
@@ -33,6 +67,15 @@ void SyncEditorToActiveDoc()
 {
 	if (g_activeDoc >= 0 && g_activeDoc < (int)g_docs.size())
 		g_docs[(size_t)g_activeDoc].text = LuaEditorGetBufferUtf8();
+}
+
+void BaselineActiveDocFromEditor()
+{
+	if (g_activeDoc < 0 || g_activeDoc >= (int)g_docs.size())
+		return;
+	const std::string now = LuaEditorGetBufferUtf8();
+	g_docs[(size_t)g_activeDoc].text = now;
+	g_docs[(size_t)g_activeDoc].lastSavedTextUtf8 = now;
 }
 
 // 判斷文件是否與上次儲存內容不同（作用中文件可傳入編輯器快照）
@@ -69,6 +112,7 @@ void SwitchToDoc(int idx, char* statusBuf, size_t statusSz)
 	g_sidebarAnchor = idx;
 	g_sidebarShiftAnchor = idx;
 	g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
+	BaselineActiveDocFromEditor();
 	if (statusBuf && statusSz)
 		std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::SwitchedEditorFile));
 	g_requestSavePersist = true;
@@ -106,6 +150,7 @@ void AddOrSelectLuaFile(const std::wstring& wpath, char* statusBuf, size_t statu
 	g_sidebarAnchor = g_activeDoc;
 	g_sidebarShiftAnchor = g_activeDoc;
 	g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
+	BaselineActiveDocFromEditor();
 	std::snprintf(statusBuf, statusSz, "%s", Tr(I18nMsg::AddedLuaFile));
 	g_requestSavePersist = true;
 }
@@ -174,6 +219,7 @@ void RemoveDocsSetFromList(const std::unordered_set<int>& which)
 		g_sidebarAnchor = g_activeDoc;
 		g_sidebarShiftAnchor = g_activeDoc;
 		g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
+		BaselineActiveDocFromEditor();
 	}
 	g_requestSavePersist = true;
 }
@@ -209,6 +255,7 @@ void RemoveDocAt(int idx)
 			g_sidebarShiftAnchor = g_activeDoc;
 		}
 		g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
+		BaselineActiveDocFromEditor();
 	}
 	g_requestSavePersist = true;
 }

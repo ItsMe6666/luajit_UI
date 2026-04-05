@@ -4,6 +4,7 @@
 
 #include <commdlg.h>
 
+#include <algorithm>
 #include <cctype>
 #include <cstdio>
 #include <cstring>
@@ -85,6 +86,106 @@ static bool AllocUniqueTempBatPath(const wchar_t* tempDir, const wchar_t* prefix
 	return true;
 }
 
+static void NormalizeLogNewlines(std::string& s)
+{
+	std::string t;
+	t.reserve(s.size());
+	for (size_t i = 0; i < s.size();) {
+		if (s[i] == '\r') {
+			if (i + 1 < s.size() && s[i + 1] == '\n')
+				i += 2;
+			else
+				++i;
+			t += '\n';
+			continue;
+		}
+		t += s[i++];
+	}
+	s.swap(t);
+}
+
+static void TrimLogBodyInPlace(std::string& s)
+{
+	size_t a = 0;
+	while (a < s.size() && (unsigned char)s[a] <= 32 && (s[a] == ' ' || s[a] == '\t' || s[a] == '\r' || s[a] == '\n'))
+		++a;
+	size_t b = s.size();
+	while (b > a && (unsigned char)s[b - 1] <= 32 && (s[b - 1] == ' ' || s[b - 1] == '\t' || s[b - 1] == '\r' || s[b - 1] == '\n'))
+		--b;
+	if (a > 0 || b < s.size())
+		s = s.substr(a, b - a);
+}
+
+// cmd 內建 copy 等指令的摘要行常帶固定前置空白；逐行去掉行首空白／Tab，不影響行內內容。
+static void TrimLeadingWhitespacePerLogLine(std::string& s)
+{
+	if (s.empty())
+		return;
+	std::string t;
+	t.reserve(s.size());
+	for (size_t i = 0; i < s.size();) {
+		const size_t lineEnd = s.find('\n', i);
+		const size_t end = (lineEnd == std::string::npos) ? s.size() : lineEnd;
+		size_t p = i;
+		while (p < end && (s[p] == ' ' || s[p] == '\t'))
+			++p;
+		if (!t.empty())
+			t += '\n';
+		t.append(s, p, end - p);
+		if (lineEnd == std::string::npos)
+			break;
+		i = lineEnd + 1;
+	}
+	s.swap(t);
+}
+
+static std::string ConsoleBytesToUtf8(const std::string& raw)
+{
+	if (raw.empty())
+		return {};
+	int wlen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw.data(), (int)raw.size(), nullptr, 0);
+	if (wlen > 0) {
+		std::wstring w((size_t)wlen, L'\0');
+		MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw.data(), (int)raw.size(), w.data(), wlen);
+		std::string out;
+		if (WidePathToUtf8(w, out))
+			return out;
+	}
+	wlen = MultiByteToWideChar(CP_OEMCP, 0, raw.data(), (int)raw.size(), nullptr, 0);
+	if (wlen <= 0)
+		return raw;
+	std::wstring w2((size_t)wlen, L'\0');
+	MultiByteToWideChar(CP_OEMCP, 0, raw.data(), (int)raw.size(), w2.data(), wlen);
+	std::string out;
+	return WidePathToUtf8(w2, out) ? out : raw;
+}
+
+// 同步讀管線直到子行程結束並排空緩衝，避免 stdout 塞滿造成死鎖。
+static void ReadPipeUntilProcessDone(HANDLE hRead, HANDLE hProcess, std::string& out)
+{
+	char buf[8192];
+	for (;;) {
+		DWORD avail = 0;
+		if (PeekNamedPipe(hRead, nullptr, 0, nullptr, &avail, nullptr) && avail > 0) {
+			DWORD rd = 0;
+			const DWORD toRead = (std::min)(avail, (DWORD)sizeof(buf));
+			if (ReadFile(hRead, buf, toRead, &rd, nullptr) && rd > 0)
+				out.append(buf, rd);
+			continue;
+		}
+		const DWORD w = WaitForSingleObject(hProcess, 25);
+		if (w == WAIT_OBJECT_0) {
+			for (;;) {
+				DWORD rd = 0;
+				if (!ReadFile(hRead, buf, sizeof(buf), &rd, nullptr) || rd == 0)
+					break;
+				out.append(buf, rd);
+			}
+			return;
+		}
+	}
+}
+
 // 由 .lua 路徑推導預設的 .luac 輸出路徑
 std::wstring LuacDefaultPathWideFromLua(const std::wstring& luaPath)
 {
@@ -144,6 +245,7 @@ void SavePersistNow()
 	AppPersistState s;
 	s.fontGlobalScale = g_cachedFontScaleForSave;
 	s.sidebarWidth = g_sidebarWidth;
+	s.logPanelHeight = g_logPanelHeight;
 	s.keepBytecodeDebug = g_keepBytecodeDebug;
 	s.uiLanguage = AppLanguageGetCurrent();
 	s.afterBuildScriptUtf8 = g_afterBuildScriptUtf8;
@@ -358,14 +460,13 @@ void RunAfterBuildHook(const std::string& luacOutPathUtf8, char* statusBuf, size
 	}
 	const std::string escUserCall = EscapeBatchSetValueUtf8(userPathUtf8);
 
+	// 勿在 .bat 開頭寫 UTF-8 BOM：cmd 會把前幾個位元組當成指令的一部分，@echo off 失效後會逐行 echo 出整份批次。
 	std::string userBody;
-	userBody.reserve(script.size() + 4);
-	userBody.append("\xEF\xBB\xBF");
+	userBody.reserve(script.size() + 8);
 	userBody.append(script.data(), script.size());
 
 	std::string wrap;
 	wrap.reserve(512 + escPath.size() + escDir.size() + escName.size() + userPathUtf8.size());
-	wrap.append("\xEF\xBB\xBF");
 	wrap += "@echo off\r\nchcp 65001 >nul\r\n";
 	wrap += "set \"OUTPATH=";
 	wrap += escPath;
@@ -391,6 +492,33 @@ void RunAfterBuildHook(const std::string& luacOutPathUtf8, char* statusBuf, size
 		return;
 	}
 
+	SECURITY_ATTRIBUTES sa = { sizeof(sa), nullptr, TRUE };
+	HANDLE hReadPipe = nullptr;
+	HANDLE hWritePipe = nullptr;
+	if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 256 * 1024)) {
+		DeleteFileW(wrapPath);
+		DeleteFileW(userPath);
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+	if (!SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0)) {
+		CloseHandle(hReadPipe);
+		CloseHandle(hWritePipe);
+		DeleteFileW(wrapPath);
+		DeleteFileW(userPath);
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+	HANDLE hNul = CreateFileW(L"NUL", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, &sa, OPEN_EXISTING, 0, nullptr);
+	if (hNul == INVALID_HANDLE_VALUE) {
+		CloseHandle(hReadPipe);
+		CloseHandle(hWritePipe);
+		DeleteFileW(wrapPath);
+		DeleteFileW(userPath);
+		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
+		return;
+	}
+
 	std::wstring cmdLine = L"cmd.exe /d /s /c \"";
 	cmdLine += wrapPath;
 	cmdLine += L'"';
@@ -399,7 +527,10 @@ void RunAfterBuildHook(const std::string& luacOutPathUtf8, char* statusBuf, size
 
 	STARTUPINFOW si = {};
 	si.cb = sizeof(si);
-	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+	si.hStdInput = hNul;
+	si.hStdOutput = hWritePipe;
+	si.hStdError = hWritePipe;
 	si.wShowWindow = SW_HIDE;
 	PROCESS_INFORMATION pi = {};
 	const BOOL started = CreateProcessW(
@@ -407,26 +538,40 @@ void RunAfterBuildHook(const std::string& luacOutPathUtf8, char* statusBuf, size
 		cmdBuf.data(),
 		nullptr,
 		nullptr,
-		FALSE,
+		TRUE,
 		CREATE_NO_WINDOW,
 		nullptr,
 		nullptr,
 		&si,
 		&pi);
 
+	CloseHandle(hWritePipe);
+	CloseHandle(hNul);
+
 	if (!started) {
+		CloseHandle(hReadPipe);
 		DeleteFileW(wrapPath);
 		DeleteFileW(userPath);
 		AppendStatusPipe(statusBuf, statusSz, Tr(I18nMsg::AfterBuildRunFailed));
 		return;
 	}
 	CloseHandle(pi.hThread);
-	WaitForSingleObject(pi.hProcess, INFINITE);
+
+	std::string pipeRaw;
+	ReadPipeUntilProcessDone(hReadPipe, pi.hProcess, pipeRaw);
+	CloseHandle(hReadPipe);
 	DWORD exitCode = 1;
 	GetExitCodeProcess(pi.hProcess, &exitCode);
 	CloseHandle(pi.hProcess);
 	DeleteFileW(wrapPath);
 	DeleteFileW(userPath);
+
+	std::string capRead = ConsoleBytesToUtf8(pipeRaw);
+	NormalizeLogNewlines(capRead);
+	TrimLeadingWhitespacePerLogLine(capRead);
+	TrimLogBodyInPlace(capRead);
+	if (!capRead.empty())
+		g_pendingAfterBuildLogUtf8 = std::move(capRead);
 
 	if (exitCode != 0) {
 		char extra[96];

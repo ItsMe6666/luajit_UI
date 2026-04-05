@@ -33,6 +33,8 @@ enum class I18nMsg {
 	RemoveSelectedFmt,
 	RemoveFromList,
 	EditorLuaSource,
+	EditorLogPanel,
+	LogClear,
 	SavedLua,
 	CannotShowSaveDlg,
 	OutputPathEncodeFail,

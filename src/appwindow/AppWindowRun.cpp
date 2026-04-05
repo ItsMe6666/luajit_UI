@@ -22,6 +22,7 @@ bool Run()
 	const bool bootOk = AppSettings_Load(bootPersist);
 	AppLanguageSetCurrent(bootOk ? bootPersist.uiLanguage : AppLanguage::En);
 	g_afterBuildScriptUtf8 = std::move(bootPersist.afterBuildScriptUtf8);
+	g_logPanelHeight = bootPersist.logPanelHeight;
 
 	static constexpr wchar_t kClassName[] = L"LuaJIT_UI_ImGuiDx9";
 	// 與 resourse/app.rc 內 1 ICON 相同；工作列取的是視窗圖示，非僅 EXE 檔圖示。
@@ -163,6 +164,7 @@ bool Run()
 			g_sidebarAnchor = g_activeDoc;
 			g_sidebarShiftAnchor = g_activeDoc;
 			g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
+			BaselineActiveDocFromEditor();
 		}
 	}
 

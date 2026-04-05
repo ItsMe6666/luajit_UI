@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstring>
 #include <string>
 #include <string_view>
 
@@ -22,64 +23,6 @@ std::wstring SettingsIniPath()
 	p.resize(slash + 1);
 	p += L"settings.ini";
 	return p;
-}
-
-std::wstring AfterBuildTxtPath()
-{
-	std::wstring p = SettingsIniPath();
-	if (p.empty())
-		return L"";
-	const size_t slash = p.find_last_of(L"\\/");
-	if (slash == std::wstring::npos)
-		return L"";
-	return p.substr(0, slash + 1) + L"afterbuild.txt";
-}
-
-bool ReadOptionalUtf8File(const std::wstring& wpath, std::string& out)
-{
-	out.clear();
-	FILE* fp = nullptr;
-	if (_wfopen_s(&fp, wpath.c_str(), L"rb") != 0 || !fp)
-		return true;
-	if (fseek(fp, 0, SEEK_END) != 0) {
-		fclose(fp);
-		out.clear();
-		return false;
-	}
-	const long sz = ftell(fp);
-	if (sz < 0) {
-		fclose(fp);
-		out.clear();
-		return false;
-	}
-	if (fseek(fp, 0, SEEK_SET) != 0) {
-		fclose(fp);
-		out.clear();
-		return false;
-	}
-	out.resize((size_t)sz);
-	if (sz > 0 && fread(out.data(), 1, (size_t)sz, fp) != (size_t)sz) {
-		fclose(fp);
-		out.clear();
-		return false;
-	}
-	fclose(fp);
-	if (out.size() >= 3 && (unsigned char)out[0] == 0xEF && (unsigned char)out[1] == 0xBB && (unsigned char)out[2] == 0xBF)
-		out.erase(0, 3);
-	return true;
-}
-
-bool WriteOptionalUtf8File(const std::wstring& wpath, std::string_view data)
-{
-	FILE* fp = nullptr;
-	if (_wfopen_s(&fp, wpath.c_str(), L"wb") != 0 || !fp)
-		return false;
-	if (!data.empty() && fwrite(data.data(), 1, data.size(), fp) != data.size()) {
-		fclose(fp);
-		return false;
-	}
-	fclose(fp);
-	return true;
 }
 
 int ReadInt(const std::wstring& ini, const wchar_t* sec, const wchar_t* key, int def)
@@ -114,21 +57,82 @@ void WriteFloat(const std::wstring& ini, const wchar_t* sec, const wchar_t* key,
 	WritePrivateProfileStringW(sec, key, buf, ini.c_str());
 }
 
+std::string Base64Encode(std::string_view data)
+{
+	static const char kTbl[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	std::string out;
+	out.reserve(((data.size() + 2) / 3) * 4);
+	int val = 0;
+	int valb = -6;
+	for (unsigned char c : data) {
+		val = (val << 8) | (int)c;
+		valb += 8;
+		while (valb >= 0) {
+			out.push_back(kTbl[(val >> valb) & 63]);
+			valb -= 6;
+		}
+	}
+	if (valb > -6)
+		out.push_back(kTbl[((val << 8) >> (valb + 8)) & 63]);
+	while (out.size() % 4)
+		out.push_back('=');
+	return out;
+}
+
+bool Base64Decode(std::string_view in, std::string& out)
+{
+	static const char kTbl[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	out.clear();
+	int val = 0;
+	int valb = -8;
+	for (unsigned char uc : in) {
+		char c = (char)uc;
+		if (c == '=')
+			break;
+		if (c == ' ' || c == '\r' || c == '\n' || c == '\t')
+			continue;
+		const void* p = memchr(kTbl, c, 64);
+		if (!p)
+			return false;
+		val = (val << 6) + (int)((const char*)p - kTbl);
+		valb += 6;
+		if (valb >= 0) {
+			out.push_back((char)((val >> valb) & 0xFF));
+			valb -= 8;
+		}
+	}
+	return true;
+}
+
 } // namespace
 
 // 載入設定；成功時會 clamp 字體縮放與側欄寬度，並修正 active 索引。
 bool AppSettings_Load(AppPersistState& out)
 {
 	std::wstring ini = SettingsIniPath();
-	{
-		std::wstring abp = AfterBuildTxtPath();
-		if (!abp.empty())
-			ReadOptionalUtf8File(abp, out.afterBuildScriptUtf8);
-		else
-			out.afterBuildScriptUtf8.clear();
-	}
 	if (ini.empty() || GetFileAttributesW(ini.c_str()) == INVALID_FILE_ATTRIBUTES)
 		return false;
+
+	wchar_t abB64w[32768];
+	GetPrivateProfileStringW(
+		L"AfterBuild",
+		L"scriptUtf8B64",
+		L"",
+		abB64w,
+		(DWORD)(sizeof(abB64w) / sizeof(abB64w[0])),
+		ini.c_str());
+	{
+		std::string b64ascii;
+		for (const wchar_t* p = abB64w; *p; ++p) {
+			if (*p > 127)
+				continue;
+			b64ascii.push_back((char)*p);
+		}
+		if (b64ascii.empty())
+			out.afterBuildScriptUtf8.clear();
+		else if (!Base64Decode(b64ascii, out.afterBuildScriptUtf8))
+			out.afterBuildScriptUtf8.clear();
+	}
 
 	out.normalRect.left = ReadInt(ini, L"Window", L"x", 120);
 	out.normalRect.top = ReadInt(ini, L"Window", L"y", 80);
@@ -140,12 +144,14 @@ bool AppSettings_Load(AppPersistState& out)
 
 	out.fontGlobalScale = ReadFloat(ini, L"UI", L"fontScale", 1.0f);
 	out.sidebarWidth = ReadFloat(ini, L"UI", L"sidebarWidth", 220.0f);
+	out.logPanelHeight = ReadFloat(ini, L"UI", L"logPanelHeight", 120.0f);
 	out.keepBytecodeDebug = ReadInt(ini, L"Editor", L"keepDebug", 0) != 0;
 
 	out.uiLanguage = AppLanguageFromInt(ReadInt(ini, L"UI", L"language", 1));
 
 	out.fontGlobalScale = std::clamp(out.fontGlobalScale, 0.5f, 3.0f);
 	out.sidebarWidth = std::clamp(out.sidebarWidth, 120.0f, 640.0f);
+	out.logPanelHeight = std::clamp(out.logPanelHeight, 48.0f, 2000.0f);
 
 	const int n = ReadInt(ini, L"Session", L"fileCount", 0);
 	out.activeLuaIndex = ReadInt(ini, L"Session", L"active", 0);
@@ -206,6 +212,7 @@ void AppSettings_Save(HWND hwnd, const AppPersistState& state)
 
 	WriteFloat(ini, L"UI", L"fontScale", state.fontGlobalScale);
 	WriteFloat(ini, L"UI", L"sidebarWidth", state.sidebarWidth);
+	WriteFloat(ini, L"UI", L"logPanelHeight", state.logPanelHeight);
 	WriteInt(ini, L"UI", L"language", AppLanguageToInt(state.uiLanguage));
 	WriteInt(ini, L"Editor", L"keepDebug", state.keepBytecodeDebug ? 1 : 0);
 
@@ -224,7 +231,10 @@ void AppSettings_Save(HWND hwnd, const AppPersistState& state)
 		WritePrivateProfileStringW(L"LuacOut", key, lu, ini.c_str());
 	}
 
-	std::wstring ab = AfterBuildTxtPath();
-	if (!ab.empty())
-		WriteOptionalUtf8File(ab, state.afterBuildScriptUtf8);
+	const std::string abB64 = Base64Encode(state.afterBuildScriptUtf8);
+	std::wstring abB64w;
+	abB64w.reserve(abB64.size());
+	for (unsigned char c : abB64)
+		abB64w += (wchar_t)c;
+	WritePrivateProfileStringW(L"AfterBuild", L"scriptUtf8B64", abB64w.c_str(), ini.c_str());
 }

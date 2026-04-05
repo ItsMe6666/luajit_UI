@@ -37,6 +37,7 @@ extern bool g_luaEditorInited;
 extern std::vector<LuaDoc> g_docs;
 extern int g_activeDoc;
 extern float g_sidebarWidth;
+extern float g_logPanelHeight;
 extern bool g_keepBytecodeDebug;
 extern std::string g_afterBuildScriptUtf8;
 extern bool g_requestSavePersist;
@@ -51,6 +52,10 @@ extern bool g_pendingCompileBytecode;
 extern bool g_pendingCompileBytecodeLastPath;
 extern std::vector<std::wstring> g_pendingDropPaths;
 extern std::string g_orphanLastLuacOutPathUtf8;
+
+extern std::string g_appLogUtf8;
+extern bool g_appLogScrollToBottom;
+extern std::string g_pendingAfterBuildLogUtf8;
 
 extern std::unordered_set<int> g_sidebarSel;
 extern int g_sidebarAnchor;
@@ -77,6 +82,8 @@ void EnsureLuaEditorInited();
 std::string LuaEditorGetBufferUtf8();
 // 把編輯器內容寫回目前作用中的文件緩衝
 void SyncEditorToActiveDoc();
+// SetText 後將作用中文件的 text／lastSaved 對齊編輯器序列化結果（例如 CRLF→LF），避免誤判為已修改
+void BaselineActiveDocFromEditor();
 // 判斷文件是否與上次儲存內容不同（作用中文件可傳入編輯器快照）
 bool DocIsDirty(int docIdx, const std::string* activeEditorUtf8);
 // 依路徑（不分大小寫）尋找已開啟文件索引，找不到回傳 -1
@@ -95,6 +102,8 @@ void RemoveDocAt(int idx);
 std::wstring FileNameFromPath(const std::wstring& p);
 // 在檔案總管中開啟並選取指定檔案
 void OpenExplorerSelectFile(const std::wstring& wpath);
+// 追加一行／一段 UTF-8 到主視窗日誌（會捲到底、總量上限約 60KB）
+void AppendAppLogUtf8(std::string_view textUtf8);
 
 // --- 儲存／編譯／持久化 ---
 // 依目前作用中文件預填「另存 luac」緩衝區

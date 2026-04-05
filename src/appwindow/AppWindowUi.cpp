@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
+#include <string>
 #include <vector>
 
 namespace appwindow {
@@ -25,7 +26,9 @@ void DrawUi()
 	ImGui::SetNextWindowSize(vp->Size);
 
 	const ImGuiStyle& styPreBegin = ImGui::GetStyle();
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(styPreBegin.WindowPadding.x, 4.0f));
+	// 與左右相同的底／頂留白（勿只用很小的 y，否則底邊會貼齊視窗）
+	const float kMainEdgePad = styPreBegin.WindowPadding.x;
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(kMainEdgePad, kMainEdgePad));
 
 	ImGui::Begin(
 		"LuaJIT_UI_Main",
@@ -241,10 +244,7 @@ void DrawUi()
 
 	const float rowAvailH = ImGui::GetContentRegionAvail().y;
 	const ImGuiStyle& edSt = ImGui::GetStyle();
-	float statusReserve = 0.0f;
-	if (s_status[0] != '\0')
-		statusReserve = edSt.ItemSpacing.y + ImGui::GetTextLineHeightWithSpacing() * 2.0f;
-	const float editorRowH = (std::max)(1.0f, rowAvailH - statusReserve);
+	const float editorRowH = (std::max)(1.0f, rowAvailH);
 
 	g_sidebarWidth = std::clamp(g_sidebarWidth, 120.0f, 640.0f);
 
@@ -338,6 +338,7 @@ void DrawUi()
 					g_activeDoc = ii;
 					g_sidebarAnchor = ii;
 					g_luaEditor.SetText(g_docs[(size_t)g_activeDoc].text);
+					BaselineActiveDocFromEditor();
 					std::snprintf(s_status, sizeof(s_status), "%s", Tr(I18nMsg::StatusRangeSelectSwitch));
 					g_requestSavePersist = true;
 				} else {
@@ -413,15 +414,31 @@ void DrawUi()
 	ImGui::BeginChild("##editorColumn", ImVec2(0.0f, editorRowH), ImGuiChildFlags_None, ImGuiWindowFlags_NoSavedSettings);
 
 	ImGui::SeparatorText(Tr(I18nMsg::EditorLuaSource));
-	float editorH = ImGui::GetContentRegionAvail().y;
-	editorH = (std::max)(1.0f, editorH);
+	// 垂直加總須含 ItemSpacing 與「日誌」SeparatorText，否則右欄會比側欄實際內容高，底線對不齊。
+	const float poolBelowLuaHdr = ImGui::GetContentRegionAvail().y;
+	const float kLogSplitGrabH = 5.0f;
+	const float kLuaEditorMinH = 48.0f;
+	const float kLogPanelMinH = 48.0f;
+	const float gapAfterLogSplit = edSt.ItemSpacing.y;
+	const float sepLogLabelH = ImGui::GetFrameHeightWithSpacing() + 6.0f;
+	const float gapAfterSepLog = edSt.ItemSpacing.y;
+	const float fixedBelowLuaEditor =
+		kLogSplitGrabH + gapAfterLogSplit + sepLogLabelH + gapAfterSepLog;
+	const float maxLogH = (std::max)(
+		kLogPanelMinH, poolBelowLuaHdr - kLuaEditorMinH - fixedBelowLuaEditor);
+	g_logPanelHeight = std::clamp(g_logPanelHeight, kLogPanelMinH, maxLogH);
+	float luaEditorShellH = poolBelowLuaHdr - fixedBelowLuaEditor - g_logPanelHeight;
+	if (luaEditorShellH < kLuaEditorMinH) {
+		luaEditorShellH = kLuaEditorMinH;
+		g_logPanelHeight = (std::max)(kLogPanelMinH, poolBelowLuaHdr - fixedBelowLuaEditor - luaEditorShellH);
+	}
 	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarRounding, 0.0f);
 	const float kLuaEditorInnerTopPad = 8.0f;
 	const ImGuiWindowFlags luaScrollFlags =
 		ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysHorizontalScrollbar | ImGuiWindowFlags_NoMove;
 	g_luaEditor.SetImGuiChildIgnored(true);
-	ImGui::BeginChild("##luaSrcShell", ImVec2(-1.0f, editorH), ImGuiChildFlags_Borders, luaScrollFlags);
+	ImGui::BeginChild("##luaSrcShell", ImVec2(-1.0f, luaEditorShellH), ImGuiChildFlags_Borders, luaScrollFlags);
 	ImGui::Dummy(ImVec2(0.0f, kLuaEditorInnerTopPad));
 	const float innerH = (std::max)(40.0f, ImGui::GetContentRegionAvail().y);
 	g_luaEditor.Render("##luaSrc", ImVec2(-1.0f, innerH), false);
@@ -429,12 +446,92 @@ void DrawUi()
 	g_luaEditor.SetImGuiChildIgnored(false);
 	ImGui::PopStyleVar(2);
 
-	ImGui::EndChild();
-
-	if (s_status[0] != '\0') {
-		ImGui::Spacing();
-		ImGui::TextWrapped("%s", s_status);
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(edSt.ItemSpacing.x, 0.0f));
+	const float splitGrabW = ImGui::GetContentRegionAvail().x;
+	const ImVec2 logSplitP0 = ImGui::GetCursorScreenPos();
+	ImGui::InvisibleButton("##logHeightSplit", ImVec2(splitGrabW, kLogSplitGrabH));
+	const bool logSplitHover = ImGui::IsItemHovered();
+	const bool logSplitActive = ImGui::IsItemActive();
+	if (logSplitHover || logSplitActive)
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+	// 游標往下拖 → 日誌區變大：日誌在分割線「下方」，與螢幕 Y 同向時應減去 MouseDelta.y
+	if (logSplitActive)
+		g_logPanelHeight -= ImGui::GetIO().MouseDelta.y;
+	if (ImGui::IsItemDeactivatedAfterEdit())
+		g_requestSavePersist = true;
+	{
+		const ImVec2 logSplitP1 = ImVec2(logSplitP0.x + splitGrabW, logSplitP0.y + kLogSplitGrabH);
+		const float midY = (logSplitP0.y + logSplitP1.y) * 0.5f;
+		ImDrawList* logSplDl = ImGui::GetWindowDrawList();
+		const ImU32 logSplCol = ImGui::GetColorU32(
+			logSplitActive ? ImGuiCol_SeparatorActive : logSplitHover ? ImGuiCol_SeparatorHovered : ImGuiCol_Separator);
+		logSplDl->AddLine(ImVec2(logSplitP0.x, midY), ImVec2(logSplitP1.x, midY), logSplCol, logSplitActive ? 2.0f : 1.0f);
 	}
+	ImGui::PopStyleVar();
+
+	{
+		static char s_lastLoggedStatus[2048] = "";
+		static std::vector<char> s_logDisplayBuf(4096, '\0');
+		if (s_status[0] != '\0' && std::strcmp(s_status, s_lastLoggedStatus) != 0) {
+			AppendAppLogUtf8(std::string_view(s_status));
+			std::strncpy(s_lastLoggedStatus, s_status, sizeof(s_lastLoggedStatus) - 1);
+			s_lastLoggedStatus[sizeof(s_lastLoggedStatus) - 1] = '\0';
+		}
+		if (!g_pendingAfterBuildLogUtf8.empty()) {
+			AppendAppLogUtf8(std::string_view(g_pendingAfterBuildLogUtf8));
+			g_pendingAfterBuildLogUtf8.clear();
+		}
+		const size_t need = g_appLogUtf8.size() + 1;
+		if (s_logDisplayBuf.size() < need)
+			s_logDisplayBuf.resize((std::max)(need, (size_t)4096));
+		if (need > 1)
+			std::memcpy(s_logDisplayBuf.data(), g_appLogUtf8.data(), need);
+		else
+			s_logDisplayBuf[0] = '\0';
+
+		ImGui::SeparatorText(Tr(I18nMsg::EditorLogPanel));
+		g_logPanelHeight = std::clamp(g_logPanelHeight, kLogPanelMinH, maxLogH);
+		const float logRemain = ImGui::GetContentRegionAvail().y;
+		const float logPanelOuterH = (std::max)(kLogPanelMinH, logRemain);
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 0.0f);
+		ImGui::BeginChild(
+			"##appLogPanel",
+			ImVec2(-1.0f, logPanelOuterH),
+			ImGuiChildFlags_Borders,
+			ImGuiWindowFlags_AlwaysVerticalScrollbar);
+		const float logInnerH = (std::max)(24.0f, ImGui::GetContentRegionAvail().y);
+		const ImVec4 logFill = ImGui::GetStyleColorVec4(ImGuiCol_ChildBg);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, logFill);
+		ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, logFill);
+		ImGui::PushStyleColor(ImGuiCol_FrameBgActive, logFill);
+		ImGui::InputTextMultiline(
+			"##appLogMultiline",
+			s_logDisplayBuf.data(),
+			s_logDisplayBuf.size(),
+			ImVec2(-1.0f, logInnerH),
+			ImGuiInputTextFlags_ReadOnly);
+		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar(2);
+		if (ImGui::BeginPopupContextItem("##logPanelCtx", ImGuiPopupFlags_MouseButtonRight)) {
+			if (ImGui::MenuItem(Tr(I18nMsg::LogClear))) {
+				g_appLogUtf8.clear();
+				g_pendingAfterBuildLogUtf8.clear();
+				s_lastLoggedStatus[0] = '\0';
+				s_logDisplayBuf.assign(4096, '\0');
+			}
+			ImGui::EndPopup();
+		}
+		if (g_appLogScrollToBottom) {
+			ImGui::SetScrollY(ImGui::GetScrollMaxY());
+			g_appLogScrollToBottom = false;
+		}
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+	}
+
+	ImGui::EndChild();
 
 	if (g_requestSavePersist) {
 		g_requestSavePersist = false;

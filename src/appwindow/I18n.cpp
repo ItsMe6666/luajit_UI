@@ -92,6 +92,10 @@ const char* Tr(I18nMsg id)
 		return en ? "Remove from list" : u8"從清單移除";
 	case I18nMsg::EditorLuaSource:
 		return en ? "Lua source" : u8"Lua 原始碼";
+	case I18nMsg::EditorLogPanel:
+		return en ? "Log" : u8"日誌";
+	case I18nMsg::LogClear:
+		return en ? "Clear log" : u8"清除日誌";
 	case I18nMsg::SavedLua:
 		return en ? "Lua saved" : u8"已儲存 Lua";
 	case I18nMsg::CannotShowSaveDlg:

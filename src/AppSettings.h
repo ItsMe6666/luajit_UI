@@ -13,9 +13,10 @@ struct AppPersistState {
 	bool maximized = false;
 	float fontGlobalScale = 1.0f;
 	float sidebarWidth = 220.0f;
+	float logPanelHeight = 120.0f;
 	bool keepBytecodeDebug = false;
 	AppLanguage uiLanguage = AppLanguage::En;
-	// 與執行檔同目錄之 afterbuild.txt（UTF-8），編譯成功後由 cmd 執行；空則略過。
+	// 編譯成功後由 cmd 執行之批次內容（UTF-8），存於 settings.ini [AfterBuild]；空則略過。
 	std::string afterBuildScriptUtf8;
 	std::vector<std::wstring> openLuaPaths;
 	// 與 openLuaPaths 一一對應：各分頁上次 F5/F6 輸出的 .luac 路徑（寬字元）。

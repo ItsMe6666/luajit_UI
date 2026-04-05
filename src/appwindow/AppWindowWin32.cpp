@@ -98,6 +98,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			AppPersistState s;
 			s.fontGlobalScale = g_cachedFontScaleForSave;
 			s.sidebarWidth = g_sidebarWidth;
+			s.logPanelHeight = g_logPanelHeight;
 			s.keepBytecodeDebug = g_keepBytecodeDebug;
 			s.uiLanguage = AppLanguageGetCurrent();
 			s.afterBuildScriptUtf8 = g_afterBuildScriptUtf8;
