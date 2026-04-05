@@ -58,7 +58,7 @@ void DrawUi()
 	const ImU32 closeH = ImGui::ColorConvertFloat4ToU32(ImVec4(0.75f, 0.22f, 0.28f, 1.0f));
 	const ImU32 closeA = ImGui::ColorConvertFloat4ToU32(ImVec4(0.45f, 0.12f, 0.16f, 1.0f));
 
-	if (GuiSkin::TitleBarIconButton("##capMin", ImVec2(btnX0, btnY), capSize, minN, minH, minA, "\xe2\x80\x94") && g_hwnd)
+	if (GuiSkin::TitleBarIconButton("##capMin", ImVec2(btnX0, btnY), capSize, minN, minH, minA, "—") && g_hwnd)
 		ShowWindow(g_hwnd, SW_MINIMIZE);
 	if (GuiSkin::TitleBarIconButton("##capClose", ImVec2(btnX0 + capBtn + capGap, btnY), capSize, closeN, closeH, closeA, "X") && g_hwnd)
 		PostMessageW(g_hwnd, WM_CLOSE, 0, 0);
