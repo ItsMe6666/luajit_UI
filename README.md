@@ -7,7 +7,7 @@ Windows 桌面小工具：以 **Dear ImGui**（DirectX 9）提供介面，內建
 - **Windows** x64  
 - [xmake](https://xmake.io/)（建置系統）  
 - **Visual Studio** 或已安裝的 **MSVC** 工具鏈（xmake 在 Windows 上通常搭配 MSVC）  
-- **Git**（取得子模組）
+- **Git**（取得第三方原始碼子目錄）
 
 ## 取得原始碼
 
@@ -22,13 +22,12 @@ cd luajit_UI
 git submodule update --init --recursive
 ```
 
-### 子模組
+### 子模組（`vendor/`）
 
-- **`vendor/luajit2`** — LuaJIT 原始碼子模組（[onlyfeng/luajit2](https://github.com/onlyfeng/luajit2)，供對照／開發參考）  
 - **`vendor/imgui`** — Dear ImGui（[ocornut/imgui](https://github.com/ocornut/imgui)，`docking` 分支）  
 - **`vendor/ImGuiColorTextEdit`** — 程式碼編輯器元件（[BalazsJako/ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit)）  
 
-連結進可執行檔的 **LuaJIT** 由 xmake 套件 `luajit` 提供（`add_requires("luajit", { configs = { shared = false } })`，靜態連結），與上述子模組為兩套來源：子模組主要方便瀏覽原始碼與標頭路徑對照（例如搭配 `compile_flags.txt`）。
+**LuaJIT**：標頭與函式庫由 xmake 套件 `luajit` 提供（`add_requires("luajit", { configs = { shared = false } })`，靜態連結）。
 
 ## 建置
 
@@ -49,6 +48,7 @@ git submodule update --init --recursive
 
 - **語言標準**：C++17  
 - **圖形後端**：Direct3D 9、Win32 子系統視窗應用程式  
+- **IDE／clangd**：Lua 標頭來自 xmake 套件路徑；可在專案根目錄執行 `xmake project -k compile_commands` 產生 `compile_commands.json`，與建置時的 include 一致。
 
 ## 授權
 

@@ -1,6 +1,3 @@
-[submodule "vendor/luajit2"]
-	path = vendor/luajit2
-	url = https://github.com/onlyfeng/luajit2
 [submodule "vendor/imgui"]
 	path = vendor/imgui
 	url = https://github.com/ocornut/imgui

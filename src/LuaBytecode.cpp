@@ -7,9 +7,9 @@
 #include <vector>
 
 extern "C" {
-#include "../vendor/luajit2/src/lua.h"
-#include "../vendor/luajit2/src/lauxlib.h"
-#include "../vendor/luajit2/src/lualib.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 }
 
 namespace LuaBytecode {
