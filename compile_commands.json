@@ -1,0 +1,101 @@
+[
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\AppSettings.cpp.obj", "src\\AppSettings.cpp"],
+  "file": "src\\AppSettings.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\AppWindowD3D9.cpp.obj", "src\\appwindow\\AppWindowD3D9.cpp"],
+  "file": "src\\appwindow\\AppWindowD3D9.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\AppWindowDocument.cpp.obj", "src\\appwindow\\AppWindowDocument.cpp"],
+  "file": "src\\appwindow\\AppWindowDocument.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\AppWindowFileUtil.cpp.obj", "src\\appwindow\\AppWindowFileUtil.cpp"],
+  "file": "src\\appwindow\\AppWindowFileUtil.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\AppWindowLuaPipeline.cpp.obj", "src\\appwindow\\AppWindowLuaPipeline.cpp"],
+  "file": "src\\appwindow\\AppWindowLuaPipeline.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\AppWindowRun.cpp.obj", "src\\appwindow\\AppWindowRun.cpp"],
+  "file": "src\\appwindow\\AppWindowRun.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\AppWindowState.cpp.obj", "src\\appwindow\\AppWindowState.cpp"],
+  "file": "src\\appwindow\\AppWindowState.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\AppWindowUi.cpp.obj", "src\\appwindow\\AppWindowUi.cpp"],
+  "file": "src\\appwindow\\AppWindowUi.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\AppWindowWin32.cpp.obj", "src\\appwindow\\AppWindowWin32.cpp"],
+  "file": "src\\appwindow\\AppWindowWin32.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\GuiSkin.cpp.obj", "src\\appwindow\\GuiSkin.cpp"],
+  "file": "src\\appwindow\\GuiSkin.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\appwindow\\I18n.cpp.obj", "src\\appwindow\\I18n.cpp"],
+  "file": "src\\appwindow\\I18n.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\LuaBytecode.cpp.obj", "src\\LuaBytecode.cpp"],
+  "file": "src\\LuaBytecode.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\src\\main.cpp.obj", "src\\main.cpp"],
+  "file": "src\\main.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\vendor\\ImGuiColorTextEdit\\TextEditor.cpp.obj", "vendor\\ImGuiColorTextEdit\\TextEditor.cpp"],
+  "file": "vendor\\ImGuiColorTextEdit\\TextEditor.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\vendor\\imgui\\imgui.cpp.obj", "vendor\\imgui\\imgui.cpp"],
+  "file": "vendor\\imgui\\imgui.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\vendor\\imgui\\imgui_draw.cpp.obj", "vendor\\imgui\\imgui_draw.cpp"],
+  "file": "vendor\\imgui\\imgui_draw.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\vendor\\imgui\\imgui_tables.cpp.obj", "vendor\\imgui\\imgui_tables.cpp"],
+  "file": "vendor\\imgui\\imgui_tables.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\vendor\\imgui\\imgui_widgets.cpp.obj", "vendor\\imgui\\imgui_widgets.cpp"],
+  "file": "vendor\\imgui\\imgui_widgets.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\vendor\\imgui\\backends\\imgui_impl_win32.cpp.obj", "vendor\\imgui\\backends\\imgui_impl_win32.cpp"],
+  "file": "vendor\\imgui\\backends\\imgui_impl_win32.cpp"
+},
+{
+  "directory": "D:\\Github\\luajit_UI",
+  "arguments": ["C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.50.35717\\bin\\HostX64\\x64\\cl.exe", "/c", "/nologo", "/MD", "/O2", "/std:c++17", "/Isrc", "/ID:\\Github\\luajit_UI\\vendor\\imgui", "/ID:\\Github\\luajit_UI\\vendor\\imgui\\backends", "/ID:\\Github\\luajit_UI\\vendor\\ImGuiColorTextEdit", "/DUNICODE", "/D_UNICODE", "/D_WIN32_WINNT=0x0601", "/DNOMINMAX", "/EHsc", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include", "/IC:\\Users\\ItsMe\\AppData\\Local\\.xmake\\packages\\l\\luajit\\v2.1.0-beta4.20260109\\93889a2a32fc4a3083d4865861c44c8a\\include\\luajit", "/utf-8", "/DNDEBUG", "/FoD:\\Github\\luajit_UI\\bin-int\\release-windows-x64\\luajit_ui\\luajit_ui\\windows\\x64\\release\\vendor\\imgui\\backends\\imgui_impl_dx9.cpp.obj", "vendor\\imgui\\backends\\imgui_impl_dx9.cpp"],
+  "file": "vendor\\imgui\\backends\\imgui_impl_dx9.cpp"
+}]
